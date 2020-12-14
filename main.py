@@ -2,80 +2,45 @@ import csv
 import re
 
 
-def check(x: list):
-    q1 = question1
-    q2 = question2
-    q3 = question3
+def check_format(fmt, responses):
+    return all(r == '' or fmt.search(r) for r in responses.values())
+
+
+def check(x: list, y):
     flag = False
+    not_empty_responses = []
     name = x[1]
-    platform = x[6].split(';')
-    category = x[8].split(';')
-    genres = x[9].split(';')
-    if q1 != '' and q2 != '' and q3 != '':
-        # print(1)
-        for g in q1:
+    string_steam = {'categories': x[8].split(';'), 'genres': x[9].split(';'), 'platforms': x[6].split(';')}
+    for key, value in y.items():
+        if value != '':
+            not_empty_responses.append([key, value])
+    if len(not_empty_responses) == 3:
+        for g in not_empty_responses[1][1]:
             if g[0] == ' ':
                 g.strip(' ')
-            for c in q2:
+            for c in not_empty_responses[0][1]:
                 if c[0] == ' ':
                     c.strip(' ')
-                for p in q3:
+                for p in not_empty_responses[2][1]:
                     if p[0] == ' ':
                         p.strip(' ')
-                    if g in genres and c in category and p in platform:
+                    if (g in string_steam[not_empty_responses[1][0]] and c in string_steam[not_empty_responses[2][0]]
+                            and p in string_steam[not_empty_responses[0][0]]):
                         flag = True
-    elif q1 == '' and q2 != '' and q3 != '':
-        # print(2)
-        for c in q2:
-            if c[0] == ' ':
-                c.strip(' ')
-            for p in q3:
-                if p[0] == ' ':
-                    p.strip(' ')
-                if c in category and p in platform:
-                    flag = True
-    elif q1 != '' and q2 == '' and q3 != '':
-        # print(3)
-        for g in q1:
+    elif len(not_empty_responses) == 2:
+        for g in not_empty_responses[1][1]:
             if g[0] == ' ':
                 g.strip(' ')
-            for p in q3:
-                if p[0] == ' ':
-                    p.strip(' ')
-                # print(g, p)
-                # print(genres, platform)
-                if g in genres and p in platform:
-                    flag = True
-    elif q1 != '' and q2 != '' and q3 == '':
-        # print(4)
-        for g in q1:
-            if g[0] == ' ':
-                g.strip(' ')
-            for c in q2:
+            for c in not_empty_responses[0][1]:
                 if c[0] == ' ':
                     c.strip(' ')
-                if g in genres and c in category:
+                if g in string_steam[not_empty_responses[1][0]] and c in string_steam[not_empty_responses[0][0]]:
                     flag = True
-    elif q1 == '' and q2 == '' and q3 != '':
-        # print(5)
-        for p in q3:
-            if p[0] == ' ':
-                p.strip(' ')
-            if p in platform:
-                flag = True
-    elif q1 == '' and q2 != '' and q3 == '':
-        # print(6)
-        for c in q2:
-            if c[0] == ' ':
-                c.strip(' ')
-            if c in category:
-                flag = True
-    elif q1 != '' and q2 == '' and q3 == '':
-        # print(7)
-        for g in q1:
+    elif len(not_empty_responses) == 1:
+        for g in not_empty_responses[0][1]:
             if g[0] == ' ':
                 g.strip(' ')
-            if g in genres:
+            if g in string_steam[not_empty_responses[0][0]]:
                 flag = True
     if flag:
         return name
@@ -84,41 +49,25 @@ def check(x: list):
 
 
 with open(r'steam.csv') as f:
-    result = open('result.txt', 'w')
-    reader = csv.reader(f)
-    print('Если вас интересует только один жанр(платформа,категория), то поставьте в конце запятую, '
-          'иначе будет неправильный формат ввода')
-    question1 = input('Введите интересующие вас жанры через , ')
-    question2 = input('Введите категории игры через , ')
-    question3 = input('Введите платформы, которые вас интересуют через , ')
-    if ((not re.search(r'[A:Z - a:z - ,]', question1) and question1 != '') or
-            (not re.search(r'[A:Z - a:z - ,]', question2) and question2 != '') or
-            (not re.search(r'[A:Z - a:z - ,]', question3) and question3 != '')):
-        print('Неправильный формат ввода')
-    else:
-        if question1 != '':
-            question1 = question1.split(',')
-            if '' in question1:
-                question1.remove('')
-        if question2 != '':
-            question2 = question2.split(',')
-            if '' in question2:
-                question2.remove('')
-        if question3 != '':
-            question3 = question3.split(',')
-            if '' in question3:
-                question3.remove('')
-        # print(question1)
-        # print(question2)
-        # print(question3)
-        # k = 0
-        for i in reader:
-            res = check(i)
-            # print(res)
-            if res != 0:
-                result.write(res)
-                result.write('\n')
-            # k += 1
-            # if k == 10:
-                # break
-    result.close()
+    with open('result.txt', 'w') as result:
+        reader = csv.reader(f)
+        print('Если вас интересует только один жанр(платформа,категория), то поставьте в конце запятую, '
+              'иначе будет неправильный формат ввода')
+        genres_response = input('Введите интересующие вас жанры через , ')
+        categories_response = input('Введите категории игры через , ')
+        platforms_response = input('Введите платформы, которые вас интересуют через , ')
+        responses = {'categories': categories_response, 'genres': genres_response, 'platforms': platforms_response}
+        fmt = re.compile(r'[\w -]+,')
+        if not check_format(fmt, responses):
+            print('Неправильный формат ввода')
+        else:
+            for key, value in responses.items():
+                res = value.split(',')
+                if '' in res:
+                    res.remove('')
+                responses[key] = res
+            for i in reader:
+                res = check(i, responses)
+                if res != 0:
+                    result.write(res)
+                    result.write('\n')

@@ -1,4 +1,4 @@
-import csv
+"""import csv
 with open('steam.csv') as f:
     reader = csv.reader(f)
     k = 0
@@ -19,7 +19,15 @@ with open('steam.csv') as f:
     p.strip(' ')
     print(p)
 f2.close()
-"""(re.search(r'[0123456789]', question1) or re.search(r'[0123456789]', question2) or
+(re.search(r'[0123456789]', question1) or re.search(r'[0123456789]', question2) or
             re.search(r'[0123456789]', question3) and ((question1 != '' and not re.search(r',', question1)) or
                                                        (question2 != '' and not re.search(r',', question2))
-                                                       or (question3 != '' and not re.search(r',', question3))))"""
+                                                       or (question3 != '' and not re.search(r',', question3))))
+"""
+y = {'categories': 'categories_response', 'genres': 'genres_response', 'platforms': 'platforms_response'}
+not_empty_responses = []
+for key, value in y.items():
+    if value != '':
+        not_empty_responses.append([key, value])
+print(not_empty_responses[0][1])
+print(y[not_empty_responses[1][0]])
