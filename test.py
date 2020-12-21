@@ -26,8 +26,7 @@ f2.close()
 """
 y = {'categories': 'categories_response', 'genres': 'genres_response', 'platforms': 'platforms_response'}
 not_empty_responses = []
-for key, value in y.items():
-    if value != '':
-        not_empty_responses.append([key, value])
+for key in y:
+    print(key)
 print(not_empty_responses[0][1])
 print(y[not_empty_responses[1][0]])

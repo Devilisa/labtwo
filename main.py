@@ -6,46 +6,34 @@ def check_format(fmt, responses):
     return all(r == '' or fmt.search(r) for r in responses.values())
 
 
-def check(x: list, y):
-    flag = False
-    not_empty_responses = []
-    name = x[1]
-    string_steam = {'categories': x[8].split(';'), 'genres': x[9].split(';'), 'platforms': x[6].split(';')}
-    for key, value in y.items():
-        if value != '':
-            not_empty_responses.append([key, value])
-    if len(not_empty_responses) == 3:
-        for g in not_empty_responses[1][1]:
-            if g[0] == ' ':
-                g.strip(' ')
-            for c in not_empty_responses[0][1]:
-                if c[0] == ' ':
-                    c.strip(' ')
-                for p in not_empty_responses[2][1]:
-                    if p[0] == ' ':
-                        p.strip(' ')
-                    if (g in string_steam[not_empty_responses[1][0]] and c in string_steam[not_empty_responses[2][0]]
-                            and p in string_steam[not_empty_responses[0][0]]):
-                        flag = True
-    elif len(not_empty_responses) == 2:
-        for g in not_empty_responses[1][1]:
-            if g[0] == ' ':
-                g.strip(' ')
-            for c in not_empty_responses[0][1]:
-                if c[0] == ' ':
-                    c.strip(' ')
-                if g in string_steam[not_empty_responses[1][0]] and c in string_steam[not_empty_responses[0][0]]:
-                    flag = True
-    elif len(not_empty_responses) == 1:
-        for g in not_empty_responses[0][1]:
-            if g[0] == ' ':
-                g.strip(' ')
-            if g in string_steam[not_empty_responses[0][0]]:
-                flag = True
-    if flag:
+def check_if_response_suits(responses, string_steam):
+    answer = []
+    fl = False
+    for key, value in string_steam.items():
+        if key in responses:
+            fl = False
+            for i in responses[key]:
+                if i in value:
+                    fl = True
+        answer.append(fl)
+    if False in answer:
+        return False
+    else:
+        return True
+
+
+def needed_game(file_string: list, responses):
+    not_empty_responses = {}
+    name = file_string[1]
+    string_steam = {'categories': file_string[8].split(';'), 'genres': file_string[9].split(';'),
+                    'platforms': file_string[6].split(';')}
+    for key, value in responses.items():
+        if value:
+            not_empty_responses[key] = value
+    if check_if_response_suits(not_empty_responses, string_steam):
         return name
     else:
-        return 0
+        return 'not this game'
 
 
 with open(r'steam.csv') as f:
@@ -61,13 +49,16 @@ with open(r'steam.csv') as f:
         if not check_format(fmt, responses):
             print('Неправильный формат ввода')
         else:
+            # эта проверка нужна потому, что у нас разделитель запятая и ее же нужно ставить в конце запроса, если
+            # вводится только одно слово и при split получатся, что последним элементом массива будет пустая строка,
+            # она не нужна и мешает, я ее убираю
             for key, value in responses.items():
-                res = value.split(',')
+                res = [v.strip() for v in value.split(',')]
                 if '' in res:
                     res.remove('')
                 responses[key] = res
             for i in reader:
-                res = check(i, responses)
-                if res != 0:
+                res = needed_game(i, responses)
+                if res != 'not this game':
                     result.write(res)
                     result.write('\n')
