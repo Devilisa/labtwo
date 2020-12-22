@@ -52,7 +52,7 @@ with open(r'steam.csv') as f:
                     res.remove('')
                 responses[key] = res
                 if value:
-                    not_empty_responses[key] = value
+                    not_empty_responses[key] = res
             for i in reader:
                 res = needed_game(i, not_empty_responses)
                 if res != 'not this game':
