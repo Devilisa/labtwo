@@ -25,8 +25,11 @@ f2.close()
                                                        or (question3 != '' and not re.search(r',', question3))))
 """
 y = {'categories': 'categories_response', 'genres': 'genres_response', 'platforms': 'platforms_response'}
-not_empty_responses = []
+not_empty_responses = ['hfkhfk']
+resp = []
 for key in y:
     print(key)
-print(not_empty_responses[0][1])
-print(y[not_empty_responses[1][0]])
+if not_empty_responses:
+    print('True')
+if resp:
+    print('False')

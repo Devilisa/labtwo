@@ -50,8 +50,7 @@ with open(r'steam.csv') as f:
                 res = [v.strip() for v in value.split(',')]
                 if '' in res:
                     res.remove('')
-                responses[key] = res
-                if value:
+                if res:
                     not_empty_responses[key] = res
             for i in reader:
                 res = needed_game(i, not_empty_responses)
