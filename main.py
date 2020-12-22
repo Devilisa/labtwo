@@ -8,28 +8,21 @@ def check_format(fmt, responses):
 
 def check_if_response_suits(responses, string_steam):
     answer = []
-    fl = False
+    is_feature_found = False
     for key, value in string_steam.items():
         if key in responses:
-            fl = False
-            for i in responses[key]:
-                if i in value:
-                    fl = True
-        answer.append(fl)
+            is_feature_found = any(r in value for r in responses[key])
+        answer.append(is_feature_found)
     if False in answer:
         return False
     else:
         return True
 
 
-def needed_game(file_string: list, responses):
-    not_empty_responses = {}
+def needed_game(file_string, not_empty_responses):
     name = file_string[1]
     string_steam = {'categories': file_string[8].split(';'), 'genres': file_string[9].split(';'),
                     'platforms': file_string[6].split(';')}
-    for key, value in responses.items():
-        if value:
-            not_empty_responses[key] = value
     if check_if_response_suits(not_empty_responses, string_steam):
         return name
     else:
@@ -52,13 +45,16 @@ with open(r'steam.csv') as f:
             # эта проверка нужна потому, что у нас разделитель запятая и ее же нужно ставить в конце запроса, если
             # вводится только одно слово и при split получатся, что последним элементом массива будет пустая строка,
             # она не нужна и мешает, я ее убираю
+            not_empty_responses = {}
             for key, value in responses.items():
                 res = [v.strip() for v in value.split(',')]
                 if '' in res:
                     res.remove('')
                 responses[key] = res
+                if value:
+                    not_empty_responses[key] = value
             for i in reader:
-                res = needed_game(i, responses)
+                res = needed_game(i, not_empty_responses)
                 if res != 'not this game':
                     result.write(res)
                     result.write('\n')
